@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>اپلیکیشن فاکتور</title>
 <link rel="icon" href="icon.ico" type="image/x-icon">
+<!-- این خط به صورت داینامیک manifest را می‌سازد -->
+<link rel="manifest" id="dynamic-manifest">
 <style>
 :root{box-sizing:border-box;--bg:#f4f5f7;--card:#fff;--tx:#1d2330;--mut:#6b7280;--bd:#d9dde5;--ac:#128c7e;--dg:#c0392b;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171c;--card:#1d222b;--tx:#e8eaee;--mut:#9aa3b2;--bd:#343b48;--ac:#25b3a1;--dg:#ef7b6e}}
@@ -103,6 +105,27 @@ a.wa{display:block;text-align:center;background:var(--ac);color:#fff;text-decora
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
+// --- کد ساخت فایل manifest به صورت داینامیک ---
+const manifestData = {
+  "name": "اپلیکیشن فاکتور",
+  "short_name": "فاکتور",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f5f7",
+  "theme_color": "#128c7e",
+  "icons": [
+    {
+      "src": "icon.ico",
+      "sizes": "192x192 512x512",
+      "type": "image/x-icon"
+    }
+  ]
+};
+const blob = new Blob([JSON.stringify(manifestData)], {type: 'application/json'});
+const url = URL.createObjectURL(blob);
+document.getElementById('dynamic-manifest').setAttribute('href', url);
+// ----------------------------------------------
+
 const PHONE='989171353708';
 const $=id=>document.getElementById(id);
 const fa=n=>Number(n||0).toLocaleString('fa-IR');
