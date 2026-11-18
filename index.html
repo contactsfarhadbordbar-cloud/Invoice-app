@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>اپلیکیشن فاکتور</title>
+<link rel="icon" href="icon.ico" type="image/x-icon">
+<style>
+:root{box-sizing:border-box;--bg:#f4f5f7;--card:#fff;--tx:#1d2330;--mut:#6b7280;--bd:#d9dde5;--ac:#128c7e;--dg:#c0392b;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#14171c;--card:#1d222b;--tx:#e8eaee;--mut:#9aa3b2;--bd:#343b48;--ac:#25b3a1;--dg:#ef7b6e}}
+:root[data-theme="dark"]{--bg:#14171c;--card:#1d222b;--tx:#e8eaee;--mut:#9aa3b2;--bd:#343b48;--ac:#25b3a1;--dg:#ef7b6e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Tahoma,"Vazirmatn",Arial,sans-serif;font-size:15px}
+.wrap{max-width:760px;margin:0 auto;padding:12px}
+h1{font-size:18px;margin:6px 0 12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:12px}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+label{display:block;font-size:12px;color:var(--mut);margin-bottom:3px}
+input,select{width:100%;padding:9px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit}
+.row{display:grid;grid-template-columns:1fr 1fr 1.7fr auto;gap:6px;margin-bottom:10px;align-items:center;padding-bottom:10px;border-bottom:1px dashed var(--bd)}.row .n{grid-column:1/-1}.pw{position:relative}.pw input{padding-left:52px}.pw span{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--mut);pointer-events:none}
+button{font:inherit;border:0;border-radius:8px;padding:10px 14px;cursor:pointer;background:var(--bd);color:var(--tx)}
+button.p{background:var(--ac);color:#fff;font-weight:700}
+button.x{background:transparent;color:var(--dg);padding:6px 10px}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.acts button{flex:1;min-width:120px}
+.scroll{overflow-x:auto}
+#inv{background:#fff;color:#111;padding:22px;width:100%;min-width:340px;border:1px solid #ddd;border-radius:6px;direction:rtl}
+#inv h2{margin:0 0 4px;font-size:20px;text-align:center;color:#0b6b5f}
+#inv .meta{display:flex;justify-content:space-between;gap:10px;font-size:13px;margin:12px 0;flex-wrap:wrap}
+#inv table{width:100%;border-collapse:collapse;font-size:13px}
+#inv th{background:#0b6b5f;color:#fff;padding:7px;text-align:center}
+#inv td{padding:7px;border-bottom:1px solid #e3e3e3;text-align:center}
+#inv td:nth-child(2){text-align:right}
+#inv .tot{margin-top:12px;font-size:14px;line-height:2;text-align:left;direction:rtl}
+#inv .tot div{display:flex;justify-content:space-between}
+#inv .grand{font-weight:700;font-size:16px;border-top:2px solid #0b6b5f;padding-top:4px;margin-top:4px}
+.saved{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd);font-size:13px}
+.saved span{flex:1;word-break:break-all}
+.saved button{padding:6px 10px}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;padding:14px;z-index:9}
+#modal .box{background:var(--card);border-radius:12px;padding:12px;max-width:520px;width:100%;max-height:92vh;overflow:auto}
+#modal img{width:100%;border-radius:6px;border:1px solid var(--bd)}
+.hint{font-size:12px;color:var(--mut);margin:8px 0;line-height:1.8}
+a.wa{display:block;text-align:center;background:var(--ac);color:#fff;text-decoration:none;padding:10px;border-radius:8px;margin-top:8px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>🧾 اپلیکیشن فاکتور</h1>
+
+<div class="card">
+  <div class="g">
+    <div><label>نام خریدار</label><input id="buyer" placeholder="مثلاً علی رضایی"></div>
+    <div><label>تاریخ</label><input id="date"></div>
+    <div><label>نام فروشگاه / فروشنده</label><input id="seller" placeholder="نام فروشگاه"></div>
+    <div><label>شماره فاکتور</label><input id="no"></div>
+  </div>
+</div>
+
+<div class="card">
+  <label>اقلام</label>
+  <div id="rows"></div>
+  <button id="add">+ افزودن ردیف</button>
+  <div class="g" style="margin-top:10px">
+    <div><label>تخفیف (تومان)</label><input id="disc" inputmode="numeric" value="0"></div>
+    <div><label>توضیحات</label><input id="note"></div>
+  </div>
+</div>
+
+<div class="card scroll">
+  <div id="inv">
+    <h2 id="p-seller">فاکتور فروش</h2>
+    <div style="text-align:center;font-size:12px;color:#666">فاکتور فروش</div>
+    <div class="meta"><div>خریدار: <b id="p-buyer">—</b></div><div>تاریخ: <b id="p-date"></b></div><div>شماره: <b id="p-no"></b></div></div>
+    <table><thead><tr><th>#</th><th>شرح کالا</th><th>مقدار</th><th>فی (تومان)</th><th>جمع (تومان)</th></tr></thead><tbody id="p-body"></tbody></table>
+    <div class="tot">
+      <div><span>جمع کل:</span><span id="p-sub">0</span></div>
+      <div><span>تخفیف:</span><span id="p-disc">0</span></div>
+      <div class="grand"><span>مبلغ قابل پرداخت:</span><span id="p-total">0</span></div>
+    </div>
+    <div id="p-note" style="margin-top:10px;font-size:12px;color:#555"></div>
+  </div>
+</div>
+
+<div class="card acts">
+  <button class="p" id="send">📤 ارسال عکس فاکتور به واتس‌اپ</button>
+  <button id="save">💾 ذخیره فاکتور</button>
+  <button id="reset">فاکتور جدید</button>
+</div>
+
+<div class="card">
+  <label>فاکتورهای ذخیره‌شده</label>
+  <div id="list"></div>
+</div>
+</div>
+
+<div id="modal"><div class="box">
+  <img id="out" alt="فاکتور">
+  <div class="hint" id="mhint"></div>
+  <a class="wa" id="wa" target="_blank" rel="noopener">باز کردن واتس‌اپ (09171353708)</a>
+  <button id="close" style="width:100%;margin-top:8px">بستن</button>
+</div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+const PHONE='989171353708';
+const $=id=>document.getElementById(id);
+const fa=n=>Number(n||0).toLocaleString('fa-IR');
+const toEn=s=>String(s||'').replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[,٬،\s]/g,'');
+const num=v=>parseFloat(toEn(v))||0;
+
+function jDate(sep){
+  const p=new Intl.DateTimeFormat('fa-IR-u-ca-persian-nu-latn',{year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
+  const g=t=>p.find(x=>x.type===t).value;
+  return g('year')+sep+g('month')+sep+g('day');
+}
+let store=[];
+try{store=JSON.parse(localStorage.getItem('invoices')||'[]')}catch(e){}
+function persist(){try{localStorage.setItem('invoices',JSON.stringify(store))}catch(e){}}
+function nextNo(){return String((store.reduce((m,i)=>Math.max(m,+i.no||0),1000))+1)}
+
+function addRow(d={}){
+  const r=document.createElement('div');r.className='row';
+  r.innerHTML='<input class="n" placeholder="شرح کالا"><input class="q" inputmode="decimal" placeholder="مقدار"><select class="t"><option>عدد</option><option>کیلو</option></select><div class="pw"><input class="u" inputmode="numeric" placeholder="قیمت واحد"><span>تومان</span></div><button class="x">✕</button>';
+  r.querySelector('.n').value=d.n||'';r.querySelector('.q').value=d.q||'1';r.querySelector('.u').value=d.u||'';r.querySelector('.t').value=d.t||'عدد';
+  r.querySelector('.x').onclick=()=>{if($('rows').children.length>1){r.remove();calc()}};
+  r.oninput=calc;$('rows').appendChild(r);
+}
+function items(){return [...$('rows').children].map(r=>({n:r.querySelector('.n').value,q:r.querySelector('.q').value,u:r.querySelector('.u').value,t:r.querySelector('.t').value}))}
+function calc(){
+  let sub=0,h='';
+  items().forEach((it,i)=>{
+    const t=num(it.q)*num(it.u);sub+=t;
+    if(it.n||it.u)h+=`<tr><td>${fa(i+1)}</td><td></td><td>${fa(num(it.q))} ${it.t||''}</td><td>${fa(num(it.u))}</td><td>${fa(t)}</td></tr>`;
+  });
+  $('p-body').innerHTML=h;
+  [...$('p-body').children].forEach((tr,i)=>{tr.children[1].textContent=items().filter(x=>x.n||x.u)[i].n});
+  const d=num($('disc').value);
+  $('p-sub').textContent=fa(sub);$('p-disc').textContent=fa(d);$('p-total').textContent=fa(Math.max(sub-d,0));
+  $('p-buyer').textContent=$('buyer').value||'—';
+  $('p-date').textContent=toFaDigits($('date').value);
+  $('p-no').textContent=toFaDigits($('no').value);
+  $('p-seller').textContent=$('seller').value||'فاکتور فروش';
+  $('p-note').textContent=$('note').value;
+}
+const toFaDigits=s=>String(s).replace(/\d/g,d=>'۰۱۲۳۴۵۶۷۸۹'[d]);
+['buyer','date','seller','no','disc','note'].forEach(i=>$(i).oninput=calc);
+$('add').onclick=()=>addRow();
+
+function fileName(){
+  const b=($('buyer').value.trim()||'بدون‌نام').replace(/[\\/:*?"<>|]/g,'').replace(/\s+/g,'_');
+  return `فاکتور_${toEn($('date').value).replace(/\//g,'-')}_${b}`;
+}
+function snapshot(){return{no:$('no').value,date:$('date').value,buyer:$('buyer').value,seller:$('seller').value,disc:$('disc').value,note:$('note').value,items:items(),name:fileName(),total:$('p-total').textContent}}
+function saveInv(){
+  const s=snapshot(),i=store.findIndex(x=>x.no===s.no);
+  if(i>=0)store[i]=s;else store.unshift(s);
+  persist();renderList();
+}
+function renderList(){
+  const L=$('list');L.innerHTML='';
+  if(!store.length){L.innerHTML='<div class="hint">هنوز فاکتوری ذخیره نشده است.</div>';return}
+  store.forEach((s,i)=>{
+    const d=document.createElement('div');d.className='saved';
+    d.innerHTML=`<span></span><button>باز کردن</button><button class="x">حذف</button>`;
+    d.querySelector('span').textContent=`${s.name} — ${s.total} تومان`;
+    d.children[1].onclick=()=>load(s);
+    d.children[2].onclick=()=>{store.splice(i,1);persist();renderList()};
+    L.appendChild(d);
+  });
+}
+function load(s){
+  $('no').value=s.no;$('date').value=s.date;$('buyer').value=s.buyer;$('seller').value=s.seller;$('disc').value=s.disc;$('note').value=s.note;
+  $('rows').innerHTML='';s.items.forEach(addRow);calc();window.scrollTo({top:0,behavior:'smooth'});
+}
+function reset(){
+  $('buyer').value='';$('seller').value='';$('note').value='';$('disc').value='0';$('date').value=jDate('/');$('no').value=nextNo();
+  $('rows').innerHTML='';addRow();calc();
+}
+$('save').onclick=()=>{saveInv();alert('ذخیره شد: '+fileName())};
+$('reset').onclick=reset;
+
+async function makeBlob(){
+  const c=await html2canvas($('inv'),{scale:2,backgroundColor:'#ffffff'});
+  return new Promise(r=>c.toBlob(r,'image/png'));
+}
+$('send').onclick=async()=>{
+  if(!$('buyer').value.trim()){alert('لطفاً نام خریدار را وارد کنید.');$('buyer').focus();return}
+  const btn=$('send');btn.disabled=true;btn.textContent='در حال ساخت عکس…';
+  try{
+    saveInv();
+    const blob=await makeBlob(),name=fileName()+'.png';
+    const file=new File([blob],name,{type:'image/png'});
+    const url=URL.createObjectURL(blob);
+    $('out').src=url;
+    $('wa').href='https://wa.me/'+PHONE+'?text='+encodeURIComponent('فاکتور '+$('buyer').value.trim());
+    let hint='عکس را نگه دارید و ذخیره کنید یا کپی کنید، سپس در واتس‌اپ ارسال نمایید. نام فایل: '+name;
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      try{await navigator.share({files:[file],title:name});btn.disabled=false;btn.textContent='📤 ارسال عکس فاکتور به واتس‌اپ';return}catch(e){}
+    }
+    try{await navigator.clipboard.write([new ClipboardItem({'image/png':blob})]);hint='عکس کپی شد. واتس‌اپ را باز کنید و در چت، Paste کنید. (در صورت نیاز عکس را نگه دارید و ذخیره کنید.) نام فایل: '+name}catch(e){}
+    $('mhint').textContent=hint;$('modal').style.display='flex';
+  }catch(e){alert('خطا در ساخت عکس فاکتور.')}
+  btn.disabled=false;btn.textContent='📤 ارسال عکس فاکتور به واتس‌اپ';
+};
+$('close').onclick=()=>$('modal').style.display='none';
+reset();renderList();
+</script>
+</body>
+</html>
